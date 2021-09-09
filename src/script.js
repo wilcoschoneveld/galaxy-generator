@@ -10,6 +10,7 @@ import { prng_alea } from 'esm-seedrandom';
  */
 // Debug
 const gui = new dat.GUI()
+gui.close()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
