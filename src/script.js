@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 import Stats from "three/examples/jsm/libs/stats.module"
 import { prng_alea } from 'esm-seedrandom';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 /**
  * Base
@@ -97,6 +98,9 @@ material.depthWrite = false
 material.blending = THREE.AdditiveBlending
 
 const points = new THREE.Points(geometry, material)
+points.position.x = 0
+points.position.y = 0.5
+points.position.z = -4
 scene.add(points)
 
 gui.addColor(parameters, 'insideColor').onChange(setAttributes)
@@ -142,14 +146,15 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 3
+camera.position.x = 0
 camera.position.y = 2
-camera.position.z = 3
+camera.position.z = 0
 scene.add(camera)
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
+controls.target.set(points.position.x, points.position.y, points.position.z)
 
 /**
  * Renderer
@@ -159,17 +164,18 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.xr.enabled = true;
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
+document.body.appendChild( VRButton.createButton( renderer ) );
 
 /**
  * Animate
  */
 const clock = new THREE.Clock()
 
-const tick = () =>
-{
+renderer.setAnimationLoop(() => {
     const elapsedTime = clock.getElapsedTime()
     points.rotation.y = elapsedTime * 0.02
 
@@ -179,9 +185,4 @@ const tick = () =>
     // Render
     renderer.render(scene, camera)
     stats.update()
-
-    // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
-}
-
-tick()
+});
